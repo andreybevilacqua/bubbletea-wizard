@@ -8,62 +8,45 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type Styles struct {
-	BorderColor lipgloss.Color
-	InputField  lipgloss.Style
-}
-
-func DefaultStyles() *Styles {
-	s := new(Styles)
-	s.BorderColor = lipgloss.Color("36")
-	s.InputField = lipgloss.
-		NewStyle().
-		BorderForeground(s.BorderColor).
-		BorderStyle(lipgloss.NormalBorder()).
-		Padding(1).
-		Width(80)
-	return s
-}
-
 type model struct {
 	styles    *Styles
 	index     int
-	questions []Question
+	questions []question
 	width     int
 	height    int
 	done      bool
 }
 
-type Question struct {
-	question string
-	answer   string
-	input    Input
-}
-
-func NewQuestion(q string) Question {
-	return Question{question: q}
-}
-
-func newShortQuestion(question string) Question {
-	q := NewQuestion(question)
-	model := NewShortAnswerField()
-	q.input = model
-	return q
-}
-
-func newLongQuestion(question string) Question {
-	q := NewQuestion(question)
-	model := NewLongAnswerField()
-	q.input = model
-	return q
-}
-
-func New(questions []Question) *model {
+func newModel(questions []question) *model {
 	styles := DefaultStyles()
 	return &model{
 		questions: questions,
 		styles:    styles,
 	}
+}
+
+type question struct {
+	question string
+	answer   string
+	input    Input
+}
+
+func newQuestion(q string) question {
+	return question{question: q}
+}
+
+func newShortQuestion(question string) question {
+	q := newQuestion(question)
+	model := NewShortAnswerField()
+	q.input = model
+	return q
+}
+
+func newLongQuestion(question string) question {
+	q := newQuestion(question)
+	model := NewLongAnswerField()
+	q.input = model
+	return q
 }
 
 func (m model) Init() tea.Cmd {
@@ -127,11 +110,11 @@ func (m *model) Next() {
 }
 
 func main() {
-	questions := []Question{
+	questions := []question{
 		newShortQuestion("what is your name?"),
 		newShortQuestion("what is your favorite editor?"),
 		newLongQuestion("what is your favorite quote?")}
-	m := New(questions)
+	m := newModel(questions)
 	f, err := tea.LogToFile("debug.log", "debug")
 	if err != nil {
 		log.Fatal(err)
